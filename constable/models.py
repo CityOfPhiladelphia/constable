@@ -1,5 +1,11 @@
+import os
+
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
+from cryptography.fernet import Fernet
 from restful_ben.auth import UserAuthMixin, TokenMixin
+
+TOKEN_SECRET = os.getenv('TOKEN_SECRET', Fernet.generate_key())
 
 db = SQLAlchemy()
 
@@ -38,9 +44,9 @@ class User(UserAuthMixin, BaseMixin, db.Model):
                                                                        self.email)
 
 class Token(TokenMixin, db.Model):
-    pass
+    fernet = Fernet(TOKEN_SECRET)
 
-class Application(BaseMixin, db.Model):
+class Application(db.Model):
     __tablename__ = 'applications'
 
     name = db.Column(db.String, primary_key=True) ## TODO: only allow [a-z\-]+
@@ -66,7 +72,7 @@ class OAuthScope(db.Model):
 
     application_name = db.Column(
         db.String,
-        db.ForeignKey('applications.id', ondelete='CASCADE'),
+        db.ForeignKey('applications.name', ondelete='CASCADE'),
         primary_key=True)
     scope = db.Column(db.String, primary_key=True)
     title = db.Column(db.String)

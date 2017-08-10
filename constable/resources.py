@@ -1,3 +1,6 @@
+from marshmallow import fields
+from marshmallow_sqlalchemy import ModelSchema, field_for
+from flask_login import login_required
 from restful_ben.auth import (
     csrf_check
 )
@@ -8,6 +11,7 @@ from restful_ben.resources import (
 )
 
 from .models import (
+    db,
     User,
     Token,
     Application
@@ -19,7 +23,7 @@ from .models import (
 ## TODO: /applications/scopes
 ## TODO: /applications/scopes/:name
 
-class ApplicationSchema(UserSchema):
+class ApplicationSchema(ModelSchema):
     class Meta:
         model = Application
 
@@ -77,7 +81,7 @@ class UserSchemaPOST(ModelSchema):
     created_at = field_for(User, 'created_at', dump_only=True)
     updated_at = field_for(User, 'updated_at', dump_only=True)
 
-class UserSchemaPUT(UserSchema):
+class UserSchemaPUT(ModelSchema):
     class Meta:
         model = User
         exclude = ['hashed_password', 'password']
@@ -89,7 +93,7 @@ class UserSchemaPUT(UserSchema):
 
 user_schema_post = UserSchemaPOST()
 user_schema_put = UserSchemaPUT()
-users_schema = UserSchema(many=True)
+users_schema = UserSchemaPOST(many=True)
 
 class UserResource(RetrieveUpdateDeleteResource):
     method_decorators = [csrf_check, login_required]
@@ -113,7 +117,7 @@ class UserListResource(QueryEngineMixin, CreateListResource):
 ## TODO: authorization - users can create API tokens?
 ## TODO: authorization - users can view their tokens - eg view active sessions and tokens
 
-class TokenSchema(UserSchema):
+class TokenSchema(ModelSchema):
     class Meta:
         model = Token
 
