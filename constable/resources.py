@@ -23,6 +23,8 @@ from .models import (
 ## TODO: /applications/scopes
 ## TODO: /applications/scopes/:name
 
+## TODO: /csrf-token ?
+
 class ApplicationSchema(ModelSchema):
     class Meta:
         model = Application

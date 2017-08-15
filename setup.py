@@ -9,9 +9,15 @@ setup(
     packages=find_packages(),
     install_requires=[
         'Flask-Cors==3.0.3',
-        'restful_ben==0.0.2'
+        'gunicorn==19.7.1',
+        'restful_ben==0.2.0'
     ],
     dependency_links=[
-        'https://github.com/CityOfPhiladelphia/restful-ben/tarball/0.0.2#egg=restful_ben-0.0.2'
+        'https://github.com/CityOfPhiladelphia/restful-ben/tarball/0.2.0#egg=restful_ben-0.2.0'
     ],
+    entry_points={
+        'console_scripts': [
+            'constable=constable:main',
+        ],
+    }
 )

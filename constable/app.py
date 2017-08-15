@@ -10,7 +10,7 @@ from .models import db, User, Token
 from . import resources
 
 CSRF_SECRET = os.getenv('CSRF_SECRET', Fernet.generate_key())
-SQLALCHEMY_DATABASE_URI = os.getenv('CSRF_SECRET', 'postgresql://localhost/constable_test')
+SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://localhost/constable_test')
 
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
