@@ -50,7 +50,7 @@
     },
     computed: {
       error () {
-        return this.$store.state.login.error
+        return this.$store.state.login.error // TODO: component accessing state. Should this be a prop?
       }
     },
     methods: {

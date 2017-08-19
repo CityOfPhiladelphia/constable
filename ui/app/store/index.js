@@ -14,6 +14,9 @@ const store = new Vuex.Store({
     loading: false,
     login: {
       error: false
+    },
+    registration: {
+      error: false
     }
   },
   actions,
