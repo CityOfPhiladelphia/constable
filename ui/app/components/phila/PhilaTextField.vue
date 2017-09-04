@@ -18,65 +18,43 @@
       @focus="focus"
       ref="input">
     <div class="input-error">
-      <span v-if="hasError" role="alert">{{ validations[0] }}</span>
+      <phila-form-error-message
+        v-if="hasError"
+        role="alert"
+        :field="name"
+        :label="errorMessageLabel || label"
+        :validationMessages="validationMessages"></phila-form-error-message>
     </div>
   </div>
 </template>
 
 <script>
-  import validator from 'validator'
-  import MailChecker from 'mailchecker'
-
   import Input from './mixins/input'
-
-  const validateRequired = (textField, value) => {
-    if (textField.required && (value === null || value === undefined || value.length == 0))
-      return textField.label + ' is required'
-    return true
-  }
-
-  const validateLength = (textField, value) => {
-    if (value === null || value === undefined || textField.type != 'text')
-      return true
-
-    var ln = value.length
-    if (ln == 0)
-      return true // empty values use `required` validation
-
-    if (ln < textField.min)
-      return textField.label + ' needs to be at least ' + textField.min + ' characters'
-    if (ln > textField.max)
-      return textField.label + ' needs to be under ' + textField.min + ' characters'
-    return true
-  }
-
-  const textValidation = (textField, value) => {
-    if (value === null || value === undefined || !textField.textValidation)
-      return true
-
-    for (var validation of textField.textValidation) {
-      console.log(validation)
-      if (validation == 'email' &&
-          !validator.isEmail(value))
-        return 'Invalid email'
-      else if (validation == 'notDisposableEmail' &&
-               !MailChecker.isValid(value))
-        return 'Disposable email addresses are not allowed'
-    }
-    return true
-  }
+  import PhilaFormErrorMessage from './PhilaFormErrorMessage.vue'
 
   export default {
     name: 'phila-text-field',
 
     mixins: [Input],
 
+    components: {
+      PhilaFormErrorMessage
+    },
+
     inheritAttrs: false,
 
     props: {
       name: {
-        type: String,
-        required: true
+        type: String
+      },
+      label: {
+        type: String
+      },
+      errorMessageLabel: {
+        type: String
+      },
+      validationMessages: {
+        type: Object
       },
       type: {
         type: String,
@@ -85,26 +63,12 @@
       autofocus: {
         type: Boolean
       },
-      min: {
-        type: Number,
-        default: 0
+      hasError: {
+        type: Boolean,
+        default: false
       },
-      max: {
-        type: Number,
-        default: Number.MAX_SAFE_INTEGER
-      },
-      textValidation: {
-        type: Array
-      }
-    },
-
-    data () {
-      return {
-        defaultRules: [
-          validateRequired,
-          validateLength,
-          textValidation
-        ]
+      errorMessage: {
+        type: String
       }
     },
 
@@ -129,10 +93,27 @@
       focused (val) {
         !val && this.$emit('change', this.lazyValue)
       },
-      lazyValue () {
-        !this.validateOnBlur && this.validate()
-      }
+      // lazyValue () {
+      //   !this.validateOnBlur && this.validate()
+      // }
     },
+
+    // created () {
+    //   console.log('created')
+    //   console.log(this)
+    //   var $v = null, vnode = this
+    //   for (var i = 0; i < 4; i++) {
+    //     if ('$v' in vnode) {
+    //       $v = vnode.$v
+    //       break
+    //     } else {
+    //       vnode = vnode.$parent
+    //     }
+    //   }
+    //   this.$v = $v
+    // },
+
+    // // TODO: remove $v on destroy
 
     mounted () {
       this.autofocus && this.focus()
@@ -145,7 +126,6 @@
       blur (e) {
         this.$nextTick(() => {
           this.focused = false
-          this.validate()
         })
         this.$emit('blur', e)
       },

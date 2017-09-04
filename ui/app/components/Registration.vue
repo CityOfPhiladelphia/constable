@@ -1,78 +1,66 @@
 <template>
   <div>
-    <text-field
+    <phila-text-field
       :name="'first_name'"
       v-model="first_name"
       :label="'First Name'"
-      :validateOnBlur="true"
       :required="true"
-      :min="1"
-      :max="128" />
+      @blur="$v.first_name.$touch()"
+      :has-error="$v.first_name.$error"
+      :error-message-label="'First name'" />
 
-    <text-field
+    <phila-text-field
       :name="'last_name'"
       v-model="last_name"
       :label="'Last Name'"
-      :validateOnBlur="true"
       :required="true"
-      :min="1"
-      :max="128" />
+      @blur="$v.last_name.$touch()"
+      :has-error="$v.last_name.$error"
+      :error-message-label="'Last name'" />
 
-    <text-field
+    <phila-text-field
       :name="'email'"
       v-model="email"
       :label="'Email'"
-      :validateOnBlur="true"
       :required="true"
-      :max="128"
-      :text-validation="['email','notDisposableEmail']" />
+      @blur="$v.email.$touch()"
+      :has-error="$v.email.$error"
+      :error-message-label="'Email'" />
 
-    <!-- TODO: live username availbility -->
-    <text-field
-      :name="'username'"
-      v-model="username"
-      :label="'Choose your username'"
-      :validateOnBlur="true"
+    <!-- TODO: :user-inputs="[first_name,last_name,email]" -->
+    <password-strength
+      :name="'password'"
+      v-model="password"
+      :label="'Create a password'"
       :required="true"
-      :min="4"
-      :max="128" />
+      @blur="$v.password.$touch()"
+      :has-error="$v.password.$error"
+      :error-message-label="'Password'"
+      ref="password" />
 
-    <!-- TODO: password strength validation -->
-    <!-- TODO: errors should say Password as the field -->
-
-    <div>
-      <label for="password">Create a password *</label>
-      <vue-password
-        id="password"
-        name="password"
-        v-model="password"
-        :user-inputs="[first_name,last_name,username,email]"
-        ref="password">
-      </vue-password>
-    </div>
-
-    <!-- TODO: confirm it matches password -->
-    <text-field
+    <phila-text-field
       :type="'password'"
       :name="'confirm_password'"
       v-model="confirm_password"
       :label="'Confirm your password'"
-      :validateOnBlur="true"
       :required="true"
-      :min="8"
-      :max="128"
-      :errorMessages="passwordConfirmation(password, confirm_password)"
+      @blur="$v.confirm_password.$touch()"
+      :has-error="$v.confirm_password.$error"
+      :error-message-label="'Confirm password'"
+      :validation-messages="{
+        sameAsPassword: 'Passwords do not match'
+      }"
       ref="confirmPassword" />
 
     <!-- TODO: phone number validation -->
-    <text-field
+    <phila-text-field
       :type="'tel'"
       :name="'mobile_phone'"
       v-model="mobile_phone"
-      :label="'Mobile Phone (optional)'"
-      :validateOnBlur="true"
-      :min="8"
-      :max="128" />
+      :label="'Mobile Phone'"
+      @blur="$v.mobile_phone.$touch()"
+      :has-error="$v.mobile_phone.$error"
+      :error-message-label="'Mobile phone'"/>
 
     <!-- TODO: reCAPCHA -->
 
@@ -85,16 +73,29 @@
 </template>
 
 <script>
-  import VuePassword from 'vue-password'
+  import { validationMixin, withParams } from 'vuelidate'
+  import { required, minLength, maxLength, email, sameAs } from 'vuelidate/lib/validators'
+  import MailChecker from 'mailchecker'
 
-  import TextField from './phila/TextField.vue'
-  import Button from './phila/Button.vue'
+  import PhilaTextField from './phila/PhilaTextField.vue'
+  import PhilaButton from './phila/PhilaButton.vue'
+  import PasswordStrength from './PasswordStrength.vue'
+  import validation from './phila/utils/validation' // TODO: change to validation messages?
+
+  const notDisposableEmail = withParams({type: 'notDisposableEmail'}, value => {
+    return MailChecker.isValid(value)
+  })
+
+  const passwordStrengthValidation = withParams({type: 'passwordStrength'}, (value, vm) => {
+    return vm.$refs.password && vm.$refs.password.strength > 2
+  })
 
   export default {
+    mixins: [validationMixin, validation],
     components: {
-      TextField,
-      'phila-button': Button,
-      VuePassword
+      PhilaTextField,
+      PhilaButton,
+      PasswordStrength
     },
     props: {
       onSubmit: {
@@ -105,12 +106,43 @@
     data () {
       return {
         first_name: '',
-        last_name: null,
-        email: null,
-        username: null,  // TODO: check lengeth. lowercase?
-        password: null,  // TODO: check length. check strength
-        confirm_password: null,  // TODO: check matches
-        mobile_phone: null  // TODO: valid phone. Maybe have country drop down?
+        last_name: '',
+        email: '',
+        password: '',
+        confirm_password: '',
+        mobile_phone: '' // TODO: valid phone. Maybe have country drop down?
+      }
+    },
+    validations: {
+      first_name: {
+        required,
+        minLength: minLength(2),
+        maxLength: maxLength(128)
+      },
+      last_name: {
+        required,
+        minLength: minLength(2),
+        maxLength: maxLength(128)
+      },
+      email: {
+        required,
+        email,
+        notDisposableEmail,
+        maxLength: maxLength(128)
+      },
+      password: {
+        required,
+        passwordStrengthValidation,
+        minLength: minLength(8),
+        maxLength: maxLength(128)
+      },
+      confirm_password: {
+        required,
+        sameAsPassword: sameAs('password')
+      },
+      mobile_phone: {
+        minLength: minLength(4),
+        maxLength: maxLength(128)
       }
     },
     computed: {
@@ -119,24 +151,16 @@
       }
     },
     methods: {
-      passwordConfirmation (password, confirmPassword) {
-        if (this.$refs.confirmPassword &&
-            this.$refs.confirmPassword.shouldValidate &&
-            (password && password.length > 0) &&
-            (confirmPassword && confirmPassword.length > 0) &&
-            password != confirm_password)
-          return 'Passwords do not match'
-      },
-
       validateAndSubmit () {
-        this.$validator.validateAll()
-        .then((valid) => {
-          if (valid)
-            this.onSubmit({
-              username: this.username,
-              password: this.password
-            })
-        })
+        this.$v.$touch()
+        // this.$validator.validateAll()
+        // .then((valid) => {
+        //   if (valid)
+        //     this.onSubmit({
+        //       username: this.username,
+        //       password: this.password
+        //     })
+        // })
       }
     }
   }
@@ -151,7 +175,7 @@
   }
 
   .VuePassword__Input {
-    margin-bottom: .5em;
+    margin-bottom: .75em;
   }
 
 /*  .VuePassword__Toggle__Icon {

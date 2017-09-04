@@ -5,6 +5,8 @@ import * as actions from './actions'
 import * as getters from './getters'
 import mutations from './mutations'
 
+import registration from './modules/registration'
+
 Vue.use(Vuex)
 
 const debug = (process.env.NODE_ENV !== 'production')
@@ -15,9 +17,9 @@ const store = new Vuex.Store({
     login: {
       error: false
     },
-    registration: {
-      error: false
-    }
+  },
+  modules: {
+    registration
   },
   actions,
   mutations,

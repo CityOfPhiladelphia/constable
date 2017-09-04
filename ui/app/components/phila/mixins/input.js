@@ -1,8 +1,4 @@
-import Validatable from './validatable'
-
 export default {
-  mixins: [Validatable],
-
   data () {
     return {
       focused: false,
@@ -21,6 +17,9 @@ export default {
     },
     value: {
       required: false
+    },
+    field: {
+      type: String
     }
   },
 
