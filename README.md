@@ -11,25 +11,30 @@ A rather nice authentication and authorization service
 		- TBD: Google
 		- TBD: Facebook
 		- TBD: LDAP
+	- Local Login Provider
+		- [Login](https://github.com/CityOfPhiladelphia/constable/issues/7)
+		- [Registration](https://github.com/CityOfPhiladelphia/constable/issues/8)
+		- Password Change
+		- Password Recovery
 	- Sessions
 		- Shared - Shares master session
-		- TODO: Application - Application specific session and secret
+		- TODO: [Application - Application specific session and secret](https://github.com/CityOfPhiladelphia/constable/issues/1)
 	- Single Sign-On
 		- Shared master session
-		- TODO: Shared Application Session
-		- TBD: SAML
+		- TODO: [Shared Application Session](https://github.com/CityOfPhiladelphia/constable/issues/1)
+		- TODO: [SAML](https://github.com/CityOfPhiladelphia/constable/issues/2)
 	- TODO: OAuth
 		- For mobile, native, 3rd party API access, and often used for SSO
 	- Two Factor Authentication
-		- TODO: TOTP - Hardware and authenticator apps
-		- TODO: Email
+		- TODO: [TOTP - Hardware and authenticator apps](https://github.com/CityOfPhiladelphia/constable/issues/3)
+		- TODO: [Email](https://github.com/CityOfPhiladelphia/constable/issues/4)
 		- TBD: SMS
 	- API Tokens
 		- User generated tokens - API key style
 		- TODO: OAuth token exchange
-		- TODO: refresh tokens
+		- TODO: Refresh tokens
 - Authorization
-	- TODO: Role Based Access Control (RBAC)
+	- TODO: [Role Based Access Control (RBAC)](https://github.com/CityOfPhiladelphia/constable/issues/5)
 		- Users
 			- Can have roles
 			- Can be a member of many groups
@@ -43,15 +48,15 @@ A rather nice authentication and authorization service
 		- Permission
 			- Has an action on a resource
 			- Optional filter ex `{ entity: ‘projects’, op: ‘=‘, id: 34 }`
-	- TODO: Scopes
+	- TODO: [Scopes](https://github.com/CityOfPhiladelphia/constable/issues/6)
 		- A scope is all or a subset, a scope, of permissions a user has
-		- Tokens can have scopes assoicated with them, limiting how much permissions of a user they have
+		- Tokens can have scopes associated with them, limiting how much permissions of a user they have
 		- Needed for 3rd party API / OAuth
 - Views
 	- Public / Regular User
-		- INPROGRESS: Login
-		- TODO: Two Factor Prompt
-		- INPROGRESS: Registration
+		- INPROGRESS: [Login](https://github.com/CityOfPhiladelphia/constable/issues/7)
+		- TODO: [Two Factor Prompt](https://github.com/CityOfPhiladelphia/constable/issues/3)
+		- INPROGRESS: [Registration](https://github.com/CityOfPhiladelphia/constable/issues/8)
 		- TODO: Edit User Profile
 		- TODO: Change Password
 		- TODO: Change Two Factor Device
