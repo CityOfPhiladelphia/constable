@@ -2,125 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Login</title>
+  <title>City of Philadelphia</title>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet" type="text/css">
-  <link href="/assets/css/phila-standards.css" rel="stylesheet" type="text/css">
+  <link href="http://standards.phila.gov/css/phila-app.min.css" rel="stylesheet">
+  <link href="/assets/css/font-awesome.min.css" rel="stylesheet">
   <link rel="shortcut icon" type="image/x-icon" href="/assets/img/favicon.png">
+  <style type="text/css">
+  .logo img {
+    width: 170px;
+  }
+  </style>
 </head>
 <body>
-  <header class="global-nav pbm pbn-mu mbn-mu">
-    <h1 class="accessible">City of Philadelphia</h1>
-
-    <div class="row columns bg-ben-franklin-blue expanded utility-nav" data-swiftype-index="false">
-      <div class="row">
-        <div class="medium-24 columns float-right">
-          <ul class="medium-horizontal menu show-for-medium float-right">
-            <li><a href="https://beta.phila.gov/departments/mayor/">Mayor's Office</a></li>
-            <li><a href="https://beta.phila.gov/departments/">City government directory</a></li>
-            <li>
-              <div id="google_translate_element" class="no-js"><span class="show-for-sr">Google Translate</span></div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="small-24 columns">
-        <div class="row primary-menu" data-sticky-container data-swiftype-index="false">
-          <div class="columns sticky phn" data-margin-top="0" data-sticky data-sticky-on="medium">
-            <div class="row equal-height sticky-header-width">
-              <div class="small-16 medium-6 columns equal valign small-push-4 medium-push-0">
-                <div class="valign-cell">
-                  <a href="https://beta.phila.gov" class="logo" tabindex="1" aria-label="City of Philadelphia">
-                    <img src="assets/img/logo/city-of-philadelphia.svg" data-fallback="/img/logo/city-of-philadelphia.png" alt="City of Philadelphia" class="no-scale">
-                  </a>
-                </div>
-              </div>
-              <a href="#page" aria-hidden="false" class="accessible">Skip to main content</a>
-              <div class="medium-17 columns show-for-medium equal desktop-nav">
-                <div class="top-bar-right valign-mu">
-                <nav data-swiftype-index="false" class="valign-mu">
-                  <ul class="horizontal menu pan valign-mu">
-                    <li class="services-menu-link" data-toggle="services-mega-menu">
-                      <a href="" class="no-link valign-cell" data-link="/services/">Services</a>
-                      </li>
-                    <li>
-                      <a href="https://beta.phila.gov/programs-initiatives/" class="valign-cell">Programs & initiatives</a>
-                    </li>
-                    <li>
-                      <a href="https://beta.phila.gov/news/" class="valign-cell"> News & events</a>
-                    </li>
-                    <li>
-                      <a href="https://beta.phila.gov/documents/" class="valign-cell"> Publications & forms</a>
-                    </li>
-                  </ul>
-                  </nav>
-                </div>
-              </div>
-              <div class="search-icon small-5 medium-1 columns equal valign phn-m">
-                <div class="valign-cell">
-                  <button class="site-search" type="button" data-toggle="search-dropdown" aria-label="Search">
-                    <i class="fa fa-search fa-2x" aria-hidden="true"></i>
-                    <span class="show-for-small-only">Search</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+  <div id="application">
+    <header class="site-header app group">
+      <div class="row"><!-- expanded -->
+        <div class="columns">
+          <a href="http://beta.phila.gov/" class="logo">
+            <img src="http://standards.phila.gov/img/logo/city-of-philadelphia-yellow-white.svg" alt="City of Philadelphia">
+          </a>
+          <div class="app-divide"></div>
+          <div class="page-title-container">
+            <h1 class="page-title">Phila Login</h1>
           </div>
         </div>
       </div>
-      <div class="top-bar">
-        <div class="title-bar small-5 columns" data-responsive-toggle="mobile-nav" data-swiftype-index="false" data-hide-for="medium">
-          <button class="menu-icon" type="button" data-toggle>
-            <i class="fa fa-bars fa-3x" aria-hidden="true"></i>
-            <span class="title-bar-title">Menu</span>
-          </button>
-        </div>
-        
-      <div class="primary-menu medium-15 medium-push-2 small-24 columns equal valign-mu" id="mobile-nav">
-        <div class="top-bar-right valign-mu show-for-small-only">
-          <nav data-swiftype-index="false" class="valign-mu">
-            <ul id="mobile-nav-drilldown" class="vertical menu pan valign-mu">
-              <li>
-                <a href="https://beta.phila.gov"><i class="fa fa-home fa-lg"></i> Phila.gov home</a>
-              </li>
-              <li>
-                <a href="https://beta.phila.gov/services" class="valign-cell"><i class="fa fa-list show-for-small-only"></i>Service directory</a>
-              </li>
-              <li>
-                <a href="https://beta.phila.gov/programs-initiatives/" class="valign-cell"><i class="fa fa-info-circle"></i> Programs & initiatives</a>
-              </li>
-              <li><a href="https://beta.phila.gov/news/" class="valign-cell"><i class="fa fa-microphone"></i> News & events</a>
-              </li>
-              <li>
-                <a href="https://beta.phila.gov/documents/" class="valign-cell"><i class="fa fa-file-text"></i> Publications & forms</a>
-              </li>
-              <li class="bg-sidewalk">
-                <a href="https://beta.phila.gov/mayor/"><i class="fa fa-university"></i> Mayor's Office</a>
-              </li>
-              <li class="bg-sidewalk"><a href="https://beta.phila.gov/departments/"><i class="fa fa-sitemap"></i> City government directory</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <div id="page">
-    <div id="content">
-      <div id="app">
-        <router-view></router-view>
-      </div>
+    <div id="app">
+      <router-view></router-view>
     </div>
   </div>
 
   <script src="/assets/build.js"></script>
-  <script src="/assets/js/phila-standards.min.js"></script>
-  <script>$(document).foundation();</script>
+  <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer></script>
 </body>
 </html>

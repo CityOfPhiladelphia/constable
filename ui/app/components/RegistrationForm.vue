@@ -27,7 +27,6 @@
       :has-error="$v.email.$error"
       :error-message-label="'Email'" />
 
-    <!-- TODO: :user-inputs="[first_name,last_name,email]" -->
     <password-strength
       :name="'password'"
       v-model="password"
@@ -36,6 +35,7 @@
       @blur="$v.password.$touch()"
       :has-error="$v.password.$error"
       :error-message-label="'Password'"
+      :user-inputs="[first_name,last_name,email]"
       ref="password" />
 
     <phila-text-field
@@ -64,6 +64,17 @@
 
     <!-- TODO: reCAPCHA -->
 
+<!--     <vue-recaptcha
+      :sitekey="'6LdLWy8UAAAAAFNsqcjzbMKqBiBL4vQokrfkHE3b'"
+      :badge="'inline'"
+      @verify="verifyRecaptcha">
+      <phila-button v-on:click="validateAndSubmit()">Submit</phila-button>
+    </vue-recaptcha> -->
+
+     <vue-recaptcha
+      :sitekey="'6LdMWS8UAAAAAMDHdkp0_sP2qYLdRUBgKSLPyPuX'"
+      @verify="verifyRecaptcha" class="recapcha"></vue-recaptcha>
+
     <phila-button v-on:click="validateAndSubmit()">Submit</phila-button>
 
     <div class="registration-error" v-if="error">
@@ -76,6 +87,7 @@
   import { validationMixin, withParams } from 'vuelidate'
   import { required, minLength, maxLength, email, sameAs } from 'vuelidate/lib/validators'
   import MailChecker from 'mailchecker'
+  import VueRecaptcha from 'vue-recaptcha'
 
   import PhilaTextField from './phila/PhilaTextField.vue'
   import PhilaButton from './phila/PhilaButton.vue'
@@ -95,7 +107,8 @@
     components: {
       PhilaTextField,
       PhilaButton,
-      PasswordStrength
+      PasswordStrength,
+      VueRecaptcha
     },
     props: {
       onSubmit: {
@@ -151,16 +164,11 @@
       }
     },
     methods: {
+      verifyRecaptcha (response) {
+        console.log(response)
+      },
       validateAndSubmit () {
         this.$v.$touch()
-        // this.$validator.validateAll()
-        // .then((valid) => {
-        //   if (valid)
-        //     this.onSubmit({
-        //       username: this.username,
-        //       password: this.password
-        //     })
-        // })
       }
     }
   }
@@ -184,5 +192,13 @@
 
   .VuePassword__Meter {
     color: #f0f0f0;
+  }
+
+  .recapcha {
+    margin: 10px 0;
+  }
+
+  .recapcha > div {
+    margin: 0 auto;
   }
 </style>

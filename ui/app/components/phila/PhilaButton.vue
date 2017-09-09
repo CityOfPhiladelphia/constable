@@ -32,3 +32,10 @@
     }
   }
 </script>
+
+<style lang="css">
+  .button {
+    padding: .2rem;
+    margin: .5rem 0;
+  }
+</style>

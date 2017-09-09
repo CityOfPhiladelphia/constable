@@ -1,19 +1,21 @@
 <template>
   <div class="row">
-    <login
-      class="columns medium-8 login"
-      :onSubmit="submitLogin"></login>
+    <div class="columns medium-8 login">
+      <h1 class="contrast">Login</h1>
+      <login-form
+        :onSubmit="submitLogin"></login-form>
+    </div>
   </div>
 </template>
 
 <script>
   import { mapActions } from 'vuex'
 
-  import Login from '../components/Login.vue';
+  import LoginForm from '../components/LoginForm.vue';
 
   export default {
     components: {
-      Login
+      LoginForm
     },
     methods: mapActions([
       'submitLogin'
@@ -26,7 +28,7 @@
 
 <style lang="css">
   .login {
-    margin: 0 auto;
+    margin: 2rem auto;
     float: none;
   }
 </style>

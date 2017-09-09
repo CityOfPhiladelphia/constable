@@ -1,6 +1,6 @@
 <template>
   <div class="text-field">
-    <label :for="name">{{ label }}<span v-if="required"> *</span></label>
+    <label :for="name">{{ label }}<span v-if="required" aria-hidden="true"> *</span></label>
     <input
       :type="type"
       :id="name"

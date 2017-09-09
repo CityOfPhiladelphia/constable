@@ -4,9 +4,11 @@ var path = require('path'),
 
 var CopyWebpackPluginConfig = new CopyWebpackPlugin([
   { from: 'node_modules/phila-standards/dist/img', to: 'img/'},
-  { from: 'node_modules/phila-standards/dist/css', to: 'css/'},
-  { from: 'node_modules/phila-standards/dist/js', to: 'js/'},
-  { from: 'node_modules/phila-standards/dist/fonts', to: 'fonts/'}
+  { from: 'node_modules/font-awesome/css', to: 'css/'},
+  { from: 'node_modules/font-awesome/fonts', to: 'fonts/'}
+  // { from: 'node_modules/phila-standards/dist/css', to: 'css/'},
+  // { from: 'node_modules/phila-standards/dist/js', to: 'js/'},
+  // { from: 'node_modules/phila-standards/dist/fonts', to: 'fonts/'}
 ]);
 
 module.exports = {

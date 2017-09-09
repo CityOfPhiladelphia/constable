@@ -1,7 +1,12 @@
-from marshmallow import fields
+import os
+
+from marshmallow import fields, Schema
 from marshmallow_sqlalchemy import ModelSchema, field_for
+from flask import request
 from flask_login import login_required
+from flask_restful import Resource, abort
 from restful_ben.auth import (
+    get_ip,
     csrf_check
 )
 from restful_ben.resources import (
@@ -9,13 +14,18 @@ from restful_ben.resources import (
     QueryEngineMixin,
     CreateListResource
 )
+import requests
 
 from .models import (
     db,
     User,
     Token,
-    Application
+    Application,
+    Registration
 )
+
+GOOGLE_RECAPTCHA_SECRET = os.getenv('GOOGLE_RECAPTCHA_SECRET')
+NUMBER_OF_PROXIES = int(os.getenv('NUMBER_OF_PROXIES', 0))
 
 ## TODO: change password - need to confirm current password as well
 ## TODO: password recovery
@@ -151,3 +161,59 @@ class TokenListResource(QueryEngineMixin, CreateListResource):
     many_schema = tokens_schema
     model = Token
     session = db.session
+
+## Registration
+
+class RegistrationSchema(Schema):
+    user = fields.Nested(UserSchemaPOST)
+    recapcha = fields.String()
+
+registration_schema = RegistrationSchema()
+
+class RegistrationResource(Resource):
+    def post(self):
+        raw_body = request.json
+        instance_load = registration_schema.load(raw_body)
+
+        if instance_load.errors:
+            abort(400, errors=instance_load.errors)
+
+        registration = instance_load.data
+
+        ## TODO: check password strength
+        ## TODO: check for temp email
+
+        ip = get_ip(NUMBER_OF_PROXIES)
+
+        google_request_data = {
+            'secret': GOOGLE_RECAPTCHA_SECRET,
+            'response': registration['recaptcha'],
+            'remoteip': ip
+        }
+
+        google_response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data=google_request_data)
+
+        if google_response.status_code != 200:
+            ## TODO: log issue with Google
+            abort(500)
+
+        google_response_data = google_response.json()
+
+        if google_response_data['success'] != True:
+            abort(400, errors=['Bad Request'])
+
+        ## TODO: make sure google_response_data['challenge_ts'] is not to far off
+        ## TODO: verify google_response_data['hostname']
+        ## TODO: inspect google_response_data['error-codes'] ?
+
+        registration_instance = Registration(
+            ip=ip,
+            user_agent=request.user_agent.string,
+            status='new',
+            **registration
+        )
+
+        self.session.add(registration_instance)
+        self.session.commit()

@@ -48,9 +48,9 @@
       PhilaFormErrorMessage
     },
 
-    computed: {
-      strength () {
-        return this.$refs.password.strength.score
+    data () {
+      return {
+        strength: null
       }
     },
 
@@ -70,6 +70,7 @@
 
     methods: {
       onInput (value) {
+        this.strength = this.$refs.password.strength.score
         this.inputValue = value
       },
       onBlur (e) {

@@ -17,8 +17,6 @@
   }
 </script>
 
-<style lang="css">
-  .constable-app {
-    margin-top: 20px;
-  }
+<style lang="scss">
+  @import 'node_modules/font-awesome/scss/font-awesome.scss';
 </style>

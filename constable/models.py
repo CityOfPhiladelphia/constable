@@ -2,6 +2,7 @@ import os
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from sqlalchemy.dialects.postgresql import INET
 from cryptography.fernet import Fernet
 from restful_ben.auth import UserAuthMixin, TokenMixin
 
@@ -26,12 +27,11 @@ class User(UserAuthMixin, BaseMixin, db.Model):
     # hashed_password - from UserAuthMixin
     # password - property from UserAuthMixin
     active = db.Column(db.Boolean, nullable=False)
-    email = db.Column(db.String)
-    first_name = db.Column(db.String)
-    last_name = db.Column(db.String)
-    display_name = db.Column(db.String)
-    title = db.Column(db.String)
-    profile_image_url = db.Column(db.String)
+    email = db.Column(db.String(255))
+    first_name = db.Column(db.String(128))
+    last_name = db.Column(db.String(128))
+    title = db.Column(db.String(255))
+    profile_image_url = db.Column(db.String(255))
 
     @property
     def is_active(self):
@@ -42,6 +42,25 @@ class User(UserAuthMixin, BaseMixin, db.Model):
                                                                        self.active, \
                                                                        self.username, \
                                                                        self.email)
+
+class Registration(User):
+    __tablename__ = 'registrations'
+
+    ip = db.Column(INET)
+    user_agent = db.Column(db.String(8192))
+    status = db.Column(db.Enum('new',
+                               'processing',
+                               'email_already_registered',
+                               'verification_email_sent',
+                               'retry',
+                               'failed',
+                               'success',
+                               name='registration_statuses'),
+                       nullable=False)
+    locked_at = db.Column(db.DateTime)
+    worker_id = db.Column(db.String(255))
+    attempts = db.Column(db.Integer, nullable=False, default=0)
+    user_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'))
 
 class Token(TokenMixin, db.Model):
     fernet = Fernet(TOKEN_SECRET)
