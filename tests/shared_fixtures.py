@@ -9,10 +9,10 @@ def app():
         db.create_all()
 
         ## seed users
-        db.session.add(User(active=True, username='amadonna', password='foo'))
-        db.session.add(User(active=True, username='jdoe', password='icecream'))
-        db.session.add(User(active=True, username='kclarkson', password='icecream'))
-        db.session.add(User(active=True, username='whouston', password='icecream'))
+        db.session.add(User(active=True, email='amadonna@example.com', password='foo'))
+        db.session.add(User(active=True, email='jdoe@example.com', password='icecream'))
+        db.session.add(User(active=True, email='kclarkson@example.com', password='icecream'))
+        db.session.add(User(active=True, email='whouston@example.com', password='icecream'))
         db.session.commit()
 
     yield orig_app

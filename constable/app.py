@@ -39,6 +39,9 @@ with app.app_context():
     # session
     api.add_resource(auth.session_resource, '/session')
 
+    # registration
+    api.add_resource(resources.RegistrationResource, '/registrations')
+
     # users
     api.add_resource(apply_session(resources.UserListResource), '/users')
     api.add_resource(apply_session(resources.UserResource), '/users/<int:instance_id>')

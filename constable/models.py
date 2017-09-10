@@ -20,30 +20,33 @@ class BaseMixin(object):
                            server_default=func.now(),
                            onupdate=func.now())
 
-class User(UserAuthMixin, BaseMixin, db.Model):
-    __tablename__ = 'users'
+class UserBase(UserAuthMixin, BaseMixin, db.Model):
+    __abstract__ = True
 
-    # username - from UserAuthMixin
     # hashed_password - from UserAuthMixin
     # password - property from UserAuthMixin
-    active = db.Column(db.Boolean, nullable=False)
     email = db.Column(db.String(255))
     first_name = db.Column(db.String(128))
     last_name = db.Column(db.String(128))
-    title = db.Column(db.String(255))
+    title = db.Column(db.String(128))
+    mobile_phone = db.Column(db.String(128))
     profile_image_url = db.Column(db.String(255))
+
+class User(UserBase):
+    __tablename__ = 'users'
+
+    active = db.Column(db.Boolean, nullable=False)
 
     @property
     def is_active(self):
         return self.active
 
     def __repr__(self):
-        return '<User id: {} active {} username: {} email: {}>'.format(self.id, \
-                                                                       self.active, \
-                                                                       self.username, \
-                                                                       self.email)
+        return '<User id: {} active {} email: {}>'.format(self.id, \
+                                                          self.active, \
+                                                          self.email)
 
-class Registration(User):
+class Registration(UserBase):
     __tablename__ = 'registrations'
 
     ip = db.Column(INET)
@@ -61,6 +64,9 @@ class Registration(User):
     worker_id = db.Column(db.String(255))
     attempts = db.Column(db.Integer, nullable=False, default=0)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'))
+
+    def __repr__(self):
+        return '<Registration id: {} email: {} status: {}>'.format(self.id, self.email, self.status)
 
 class Token(TokenMixin, db.Model):
     fernet = Fernet(TOKEN_SECRET)

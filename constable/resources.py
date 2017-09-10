@@ -1,6 +1,6 @@
 import os
 
-from marshmallow import fields, Schema
+from marshmallow import fields, validate, Schema
 from marshmallow_sqlalchemy import ModelSchema, field_for
 from flask import request
 from flask_login import login_required
@@ -99,7 +99,6 @@ class UserSchemaPUT(ModelSchema):
         exclude = ['hashed_password', 'password']
 
     id = field_for(User, 'id', dump_only=True)
-    username = field_for(User, 'username', dump_only=True)
     created_at = field_for(User, 'created_at', dump_only=True)
     updated_at = field_for(User, 'updated_at', dump_only=True)
 
@@ -164,13 +163,22 @@ class TokenListResource(QueryEngineMixin, CreateListResource):
 
 ## Registration
 
+class RegistrationUserSchema(Schema):
+    first_name = fields.String(required=True, validate=[validate.Length(min=2, max=128)])
+    last_name = fields.String(required=True, validate=[validate.Length(min=2, max=128)])
+    email = fields.String(required=True, validate=[validate.Length(max=255)])
+    password = fields.String(required=True, validate=[validate.Length(min=8, max=128)])
+    mobile_phone = fields.String(required=True, validate=[validate.Length(max=128)])
+
 class RegistrationSchema(Schema):
-    user = fields.Nested(UserSchemaPOST)
-    recapcha = fields.String()
+    user = fields.Nested(RegistrationUserSchema)
+    recaptcha = fields.String(required=True, validate=[validate.Length(max=512)])
 
 registration_schema = RegistrationSchema()
 
 class RegistrationResource(Resource):
+    session = db.session
+
     def post(self):
         raw_body = request.json
         instance_load = registration_schema.load(raw_body)
@@ -212,8 +220,10 @@ class RegistrationResource(Resource):
             ip=ip,
             user_agent=request.user_agent.string,
             status='new',
-            **registration
+            **registration['user']
         )
 
         self.session.add(registration_instance)
         self.session.commit()
+
+        return None, 204
