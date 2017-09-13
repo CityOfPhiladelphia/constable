@@ -1,29 +1,20 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import * as actions from './actions'
-import * as getters from './getters'
-import mutations from './mutations'
-
+import login from './modules/login'
 import registration from './modules/registration'
+import passwordRecovery from './modules/passwordRecovery'
 
 Vue.use(Vuex)
 
 const debug = (process.env.NODE_ENV !== 'production')
 
 const store = new Vuex.Store({
-  state: {
-    loading: false,
-    login: {
-      error: false
-    },
-  },
   modules: {
-    registration
+    login,
+    registration,
+    passwordRecovery
   },
-  actions,
-  mutations,
-  //getters,
   strict: debug
 })
 

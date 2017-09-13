@@ -2,11 +2,11 @@ import os
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import INET, UUID
 from cryptography.fernet import Fernet
 from restful_ben.auth import UserAuthMixin, TokenMixin
 
-TOKEN_SECRET = os.getenv('TOKEN_SECRET', Fernet.generate_key())
+from . import config
 
 db = SQLAlchemy()
 
@@ -63,13 +63,14 @@ class Registration(UserBase):
     locked_at = db.Column(db.DateTime)
     worker_id = db.Column(db.String(255))
     attempts = db.Column(db.Integer, nullable=False, default=0)
+    verification_token_id = db.Column(UUID, db.ForeignKey('tokens.id'))
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'))
 
     def __repr__(self):
         return '<Registration id: {} email: {} status: {}>'.format(self.id, self.email, self.status)
 
 class Token(TokenMixin, db.Model):
-    fernet = Fernet(TOKEN_SECRET)
+    fernet = Fernet(config.TOKEN_SECRET)
 
 class Application(db.Model):
     __tablename__ = 'applications'

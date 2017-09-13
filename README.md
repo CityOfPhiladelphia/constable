@@ -14,8 +14,8 @@ A rather nice authentication and authorization service
 	- Local Login Provider
 		- [Login](https://github.com/CityOfPhiladelphia/constable/issues/7)
 		- [Registration](https://github.com/CityOfPhiladelphia/constable/issues/8)
-		- Password Change
-		- Password Recovery
+		- [Password Change](https://github.com/CityOfPhiladelphia/constable/issues/9)
+		- [Password Recovery](https://github.com/CityOfPhiladelphia/constable/issues/10)
 	- Sessions
 		- Shared - Shares master session
 		- TODO: [Application - Application specific session and secret](https://github.com/CityOfPhiladelphia/constable/issues/1)
@@ -57,11 +57,11 @@ A rather nice authentication and authorization service
 		- INPROGRESS: [Login](https://github.com/CityOfPhiladelphia/constable/issues/7)
 		- TODO: [Two Factor Prompt](https://github.com/CityOfPhiladelphia/constable/issues/3)
 		- INPROGRESS: [Registration](https://github.com/CityOfPhiladelphia/constable/issues/8)
-		- TODO: Edit User Profile
-		- TODO: Change Password
+		- TODO: [Edit User Profile](https://github.com/CityOfPhiladelphia/constable/issues/11)
+		- TODO: [Change Password](https://github.com/CityOfPhiladelphia/constable/issues/9)
 		- TODO: Change Two Factor Device
 		- TODO: Change Recovery Questions
-		- TODO: Recover Password
+		- TODO: [Recover Password](https://github.com/CityOfPhiladelphia/constable/issues/10)
 		- TODO: List sessions and tokens - with revoke button
 		- TODO: Create API Token
 		- TODO: OAuth Scopes/Permissions (part of OAuth exchange)

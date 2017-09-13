@@ -13,6 +13,7 @@
       :aria-required="required"
       :aria-invalid="hasError"
       :tabindex='tabindex'
+      @keyup.enter="onEnter"
       @blur="blur"
       @input="onInput"
       @focus="focus"
@@ -122,6 +123,9 @@
     methods: {
       onInput (e) {
         this.inputValue = e.target.value
+      },
+      onEnter (e) {
+        this.$emit('enter')
       },
       blur (e) {
         this.$nextTick(() => {

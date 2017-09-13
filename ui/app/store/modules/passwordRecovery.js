@@ -9,44 +9,44 @@ export default {
     success: false
   },
   mutations: {
-    [types.SUBMIT_REGISTRATION] (state) {
+    [types.SUBMIT_PASSWORD_RECOVERY] (state) {
       state.loading = true
     },
 
-    [types.RECEIVE_REGISTRATION_SUCCESS] (state) {
+    [types.RECEIVE_PASSWORD_RECOVERY_SUCCESS] (state) {
       state.loading = false
       state.error = null
       state.success = true
     },
 
-    [types.RECEIVE_REGISTRATION_FAILURE] (state, error) {
+    [types.RECEIVE_PASSWORD_RECOVERY_FAILURE] (state, error) {
       state.loading = false
       state.success = false
 
       if (error)
         state.error = error
       else
-        state.error = 'Unknown error processing your registration'
+        state.error = 'Unknown error'
     }
   },
   actions: {
-    submitRegistration ({ commit }, registration) {
-      commit(types.SUBMIT_REGISTRATION)
+    submit ({ commit }, passwordRecovery) {
+      commit(types.SUBMIT_PASSWORD_RECOVERY)
       api
-        .post('/registrations', registration)
+        .post('/password-recoveries', passwordRecovery)
         .then((res) => {
           if (res.status === 204) {
-            commit(types.RECEIVE_REGISTRATION_SUCCESS)
+            commit(types.RECEIVE_PASSWORD_RECOVERY_SUCCESS)
           } else {
             var error = null
             if (res.data.errors)
               error = res.data.errors
-            commit(types.RECEIVE_REGISTRATION_FAILURE, error)
+            commit(types.RECEIVE_PASSWORD_RECOVERY_FAILURE, error)
           }
         })
         .catch((err) => {
           console.error(err)
-          commit(types.RECEIVE_REGISTRATION_FAILURE)
+          commit(types.RECEIVE_PASSWORD_RECOVERY_FAILURE)
         })
     }
   }

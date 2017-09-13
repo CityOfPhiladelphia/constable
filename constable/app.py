@@ -8,14 +8,12 @@ from restful_ben.auth import AuthStandalone
 
 from .models import db, User, Token
 from . import resources
-
-CSRF_SECRET = os.getenv('CSRF_SECRET', Fernet.generate_key())
-SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://localhost/constable_test')
+from . import config
 
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
 
 db.init_app(app)
 api = Api(app)
@@ -29,7 +27,7 @@ auth = AuthStandalone(
         base_model=db.Model,
         user_model=User,
         token_model=Token,
-        csrf_secret=CSRF_SECRET)
+        csrf_secret=config.CSRF_SECRET)
 
 def apply_session(class_def):
     setattr(class_def, 'session', db.session)
@@ -41,6 +39,7 @@ with app.app_context():
 
     # registration
     api.add_resource(resources.RegistrationResource, '/registrations')
+    api.add_resource(resources.RegistrationConfirmationResource, '/registrations/confirmations/<token_str>')
 
     # users
     api.add_resource(apply_session(resources.UserListResource), '/users')

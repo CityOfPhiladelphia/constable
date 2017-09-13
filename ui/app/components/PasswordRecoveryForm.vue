@@ -9,19 +9,7 @@
       @blur="$v.email.$touch()"
       @enter="validateAndSubmit()" />
 
-    <phila-text-field
-      :type="'password'"
-      :name="'password'"
-      v-model="password"
-      :label="'Password'"
-      :required="true"
-      :has-error="$v.password.$error"
-      @blur="$v.password.$touch()"
-      @enter="validateAndSubmit()" />
-
-    <router-link to="/password-recovery">Forgot password?</router-link>
-
-    <phila-button @click="validateAndSubmit()">Login</phila-button>
+    <phila-button @click="validateAndSubmit()">Submit</phila-button>
   </div>
 </template>
 
@@ -50,17 +38,12 @@
 
     data () {
       return {
-        email: null,
-        password: null
+        email: null
       }
     },
 
     validations: {
       email: {
-        required,
-        maxLength: maxLength(128)
-      },
-      password: {
         required,
         maxLength: maxLength(128)
       }
@@ -71,8 +54,7 @@
         this.$v.$touch()
         if (!this.$v.$error)
           this.onSubmit({
-            email: this.email,
-            password: this.password
+            email: this.email
           })
       }
     }

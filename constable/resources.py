@@ -2,7 +2,7 @@ import os
 
 from marshmallow import fields, validate, Schema
 from marshmallow_sqlalchemy import ModelSchema, field_for
-from flask import request
+from flask import request, current_app
 from flask_login import login_required
 from flask_restful import Resource, abort
 from restful_ben.auth import (
@@ -24,16 +24,13 @@ from .models import (
     Registration
 )
 
-GOOGLE_RECAPTCHA_SECRET = os.getenv('GOOGLE_RECAPTCHA_SECRET')
-NUMBER_OF_PROXIES = int(os.getenv('NUMBER_OF_PROXIES', 0))
+from . import config
 
 ## TODO: change password - need to confirm current password as well
 ## TODO: password recovery
 
 ## TODO: /applications/scopes
 ## TODO: /applications/scopes/:name
-
-## TODO: /csrf-token ?
 
 class ApplicationSchema(ModelSchema):
     class Meta:
@@ -81,6 +78,7 @@ class ApplicationListResource(QueryEngineMixin, CreateListResource):
 
 ######## User
 
+## TODO: authorization - users can view themselves
 ## TODO: authorization - users can edit themselves
 
 class UserSchemaPOST(ModelSchema):
@@ -190,11 +188,12 @@ class RegistrationResource(Resource):
 
         ## TODO: check password strength
         ## TODO: check for temp email
+        ## ^ these should be checked on user edit as well
 
-        ip = get_ip(NUMBER_OF_PROXIES)
+        ip = get_ip(config.NUMBER_OF_PROXIES)
 
         google_request_data = {
-            'secret': GOOGLE_RECAPTCHA_SECRET,
+            'secret': config.GOOGLE_RECAPTCHA_SECRET,
             'response': registration['recaptcha'],
             'remoteip': ip
         }
@@ -203,8 +202,11 @@ class RegistrationResource(Resource):
             'https://www.google.com/recaptcha/api/siteverify',
             data=google_request_data)
 
+        print(google_response)
+        print(google_response.text)
+
         if google_response.status_code != 200:
-            ## TODO: log issue with Google
+            current_app.logger.error('Non-200 response from Google reCAPTCHA')
             abort(500)
 
         google_response_data = google_response.json()
@@ -227,3 +229,37 @@ class RegistrationResource(Resource):
         self.session.commit()
 
         return None, 204
+
+class RegistrationConfirmationResource(Resource):
+    session = db.session
+
+    def get(self, token_str):
+        token = Token.verify_token(self.session, token_str)
+
+        if token == None:
+            abort(401, errors=['Not Authorized'])
+
+        registration = self.session.query(Registration)\
+            .filter(Registration.verification_token_id == str(token.id))\
+            .one_or_none()
+
+        if registration == None:
+            abort(401, errors=['Not Authorized'])
+
+        user = User(
+            active=True,
+            email=registration.email,
+            hashed_password=registration.hashed_password,
+            first_name=registration.first_name,
+            last_name=registration.last_name,
+            title=registration.title,
+            mobile_phone=registration.mobile_phone,
+            profile_image_url=registration.profile_image_url)
+        self.session.add(user)
+
+        registration.hashed_password = None
+        registration.status = 'success'
+
+        self.session.commit()
+
+        return None, 303, {'Location': '{}/login'.format(config.BASE_URL)}

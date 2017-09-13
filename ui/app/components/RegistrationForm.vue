@@ -62,24 +62,20 @@
       :has-error="$v.mobile_phone.$error"
       :error-message-label="'Mobile phone'"/>
 
-    <!-- TODO: reCAPCHA -->
-
-<!--     <vue-recaptcha
-      :sitekey="'6LdLWy8UAAAAAFNsqcjzbMKqBiBL4vQokrfkHE3b'"
-      :badge="'inline'"
-      @verify="verifyRecaptcha">
-      <phila-button v-on:click="validateAndSubmit()">Submit</phila-button>
-    </vue-recaptcha> -->
-
-     <vue-recaptcha
+    <vue-recaptcha
+      class="recaptcha"
       :sitekey="'6LdMWS8UAAAAAMDHdkp0_sP2qYLdRUBgKSLPyPuX'"
-      @verify="verifyRecaptcha" class="recapcha"></vue-recaptcha>
+      @verify="verifyRecaptcha"
+      @expired="expireRecaptcha"></vue-recaptcha>
+    <div class="input-error">
+      <phila-form-error-message
+        v-if="$v.recaptcha.$error"
+        role="alert"
+        :field="'recaptcha'"
+        :label="'reCAPTCHA'"></phila-form-error-message>
+    </div>
 
     <phila-button v-on:click="validateAndSubmit()">Submit</phila-button>
-
-    <div class="registration-error" v-if="error">
-      {{ error }}
-    </div>
   </div>
 </template>
 
@@ -91,6 +87,7 @@
 
   import PhilaTextField from './phila/PhilaTextField.vue'
   import PhilaButton from './phila/PhilaButton.vue'
+  import PhilaFormErrorMessage from './phila/PhilaFormErrorMessage.vue'
   import PasswordStrength from './PasswordStrength.vue'
   import validation from './phila/utils/validation' // TODO: change to validation messages?
 
@@ -107,6 +104,7 @@
     components: {
       PhilaTextField,
       PhilaButton,
+      PhilaFormErrorMessage,
       PasswordStrength,
       VueRecaptcha
     },
@@ -123,7 +121,8 @@
         email: '',
         password: '',
         confirm_password: '',
-        mobile_phone: '' // TODO: valid phone. Maybe have country drop down?
+        mobile_phone: '', // TODO: valid phone. Maybe have country drop down?
+        recaptcha: null
       }
     },
     validations: {
@@ -156,32 +155,37 @@
       mobile_phone: {
         minLength: minLength(4),
         maxLength: maxLength(128)
-      }
-    },
-    computed: {
-      error () {
-        return this.$store.state.registration.error // TODO: component accessing state. Should this be a prop?
+      },
+      recaptcha: {
+        required
       }
     },
     methods: {
       verifyRecaptcha (response) {
-        console.log(response)
+        this.recaptcha = response
+      },
+      expireRecaptcha () {
+        this.recaptcha = null
       },
       validateAndSubmit () {
         this.$v.$touch()
+        if (!this.$v.$error)
+          this.onSubmit({
+            user: {
+              first_name: this.first_name,
+              last_name: this.last_name,
+              email: this.email,
+              password: this.password,
+              mobile_phone: this.mobile_phone
+            },
+            recaptcha: this.recaptcha
+          })
       }
     }
   }
 </script>
 
 <style lang="css">
-  .registration-error {
-    background: #fed0d0;
-    padding: 1em;
-    margin: .5em 0;
-    text-align: center;
-  }
-
   .VuePassword__Input {
     margin-bottom: .75em;
   }
@@ -194,11 +198,16 @@
     color: #f0f0f0;
   }
 
-  .recapcha {
+  .recaptcha {
     margin: 10px 0;
   }
 
-  .recapcha > div {
+  .recaptcha > div {
     margin: 0 auto;
+  }
+
+  div.input-error {
+    color: #ca310b;
+    height: 20px;
   }
 </style>

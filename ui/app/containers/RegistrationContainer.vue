@@ -16,22 +16,30 @@
       </div>
       <div class="columns medium-10">
         <h1 class="contrast">Register</h1>
-        <registration-form :onSubmit="submitRegistration"></registration-form>
+        <phila-alert :success="success">Registration submitted. <br> Please check your email to complete registration.</phila-alert>
+        <phila-alert :error="error">{{ error }}</phila-alert>
+        <registration-form v-if="!success" :onSubmit="submitRegistration"></registration-form>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import { mapActions } from 'vuex'
+  import { mapState, mapActions } from 'vuex'
 
-  import RegistrationForm from '../components/RegistrationForm.vue';
+  import PhilaAlert from '../components/phila/PhilaAlert.vue'
+  import RegistrationForm from '../components/RegistrationForm.vue'
 
   export default {
     components: {
+      PhilaAlert,
       RegistrationForm
     },
-    methods: mapActions([
+    computed: mapState('registration', {
+      error: state => state.error,
+      success: state => state.success
+    }),
+    methods: mapActions('registration', [
       'submitRegistration'
     ]),
     data () {
