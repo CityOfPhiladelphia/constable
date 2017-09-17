@@ -46,31 +46,61 @@ class User(UserBase):
                                                           self.active, \
                                                           self.email)
 
-class Registration(UserBase):
-    __tablename__ = 'registrations'
+async_request_statuses = ['new',
+                          'processing',
+                          'retry',
+                          'failed',
+                          'success']
 
+class AsyncRequestMixin(object):
     ip = db.Column(INET)
     user_agent = db.Column(db.String(8192))
-    status = db.Column(db.Enum('new',
-                               'processing',
-                               'email_already_registered',
-                               'verification_email_sent',
-                               'retry',
-                               'failed',
-                               'success',
-                               name='registration_statuses'),
-                       nullable=False)
+    ## create a status field with new, processing, retry, failed,
+    ## success, and any other status it could be in
     locked_at = db.Column(db.DateTime)
     worker_id = db.Column(db.String(255))
     attempts = db.Column(db.Integer, nullable=False, default=0)
+
+class Registration(AsyncRequestMixin, UserBase):
+    __tablename__ = 'registrations'
+
+    status = db.Column(db.Enum(*(async_request_statuses +
+                                 ['email_already_registered', 'verification_email_sent']),
+                               name='registration_statuses'),
+                       nullable=False)
     verification_token_id = db.Column(UUID, db.ForeignKey('tokens.id'))
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'))
 
     def __repr__(self):
         return '<Registration id: {} email: {} status: {}>'.format(self.id, self.email, self.status)
 
+class RecoverPasswordRequest(AsyncRequestMixin, BaseMixin, db.Model):
+    __tablename__ = 'recover_password_requests'
+
+    email = db.Column(db.String(128))
+    status = db.Column(db.Enum(*(async_request_statuses +
+                                 ['email_does_not_exist',
+                                  'verification_email_sent']),
+                               name='recover_password_request_statuses'),
+                       nullable=False)
+    verification_token_id = db.Column(UUID, db.ForeignKey('tokens.id'))
+    user_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'))
+
+    def __repr__(self):
+        return '<RecoverPasswordRequest id: {} email: {} status: {}>'.format(self.id, self.email, self.status)
+
 class Token(TokenMixin, db.Model):
     fernet = Fernet(config.TOKEN_SECRET)
+
+    type = db.Column(db.Enum('session',
+                             'token',
+                             'refresh_token',
+                             'partial_login', ## ?????? other optioons nfactor
+                             name='token_type'),
+                     nullable=False)
+
+    def __repr__(self):
+        return '<Token id: {} type: {} revoked_at: {} user_id: {}>'.format(self.id, self.type, self.revoked_at, self.user_id)
 
 class Application(db.Model):
     __tablename__ = 'applications'
@@ -93,6 +123,9 @@ class Application(db.Model):
                            server_default=func.now(),
                            onupdate=func.now())
 
+    def __repr__(self):
+        return '<Application id: {} name: {}>'.format(self.id, self.name)
+
 class OAuthScope(db.Model):
     __tablename__ = 'oauth_scopes'
 
@@ -110,3 +143,6 @@ class OAuthScope(db.Model):
                            nullable=False,
                            server_default=func.now(),
                            onupdate=func.now())
+
+    def __repr__(self):
+        return '<OAuthScope application_name: {} scope: {}>'.format(self.application_name, self.scope)

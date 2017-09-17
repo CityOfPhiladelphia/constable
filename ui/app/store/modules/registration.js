@@ -39,7 +39,7 @@ export default {
             commit(types.RECEIVE_REGISTRATION_SUCCESS)
           } else {
             var error = null
-            if (res.data.errors)
+            if (res.data && res.data.errors)
               error = res.data.errors
             commit(types.RECEIVE_REGISTRATION_FAILURE, error)
           }

@@ -23,15 +23,15 @@ export default {
       // TODO: ^ should the above just be cominbined into a server route?
     },
 
-    [types.RECEIVE_LOGIN_FAILURE] (state, { status, error }) {
+    [types.RECEIVE_LOGIN_FAILURE] (state, error) {
       state.loading = false
       state.success = false
 
-      if (error) {
-        if (status == 401)
+      if (error && error.status) {
+        if (error.status == 401)
           state.error = 'Incorrect email or password'
         else
-          state.error = error
+          state.error = error.message || 'Unknown error'
       } else
         state.error = 'Unknown error'
     }
@@ -50,7 +50,7 @@ export default {
               error = res.data.errors[0]
             commit(types.RECEIVE_LOGIN_FAILURE, {
               status: res.status,
-              error: error
+              message: error
             })
           }
         })

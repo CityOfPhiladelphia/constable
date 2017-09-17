@@ -41,6 +41,9 @@ with app.app_context():
     api.add_resource(resources.RegistrationResource, '/registrations')
     api.add_resource(resources.RegistrationConfirmationResource, '/registrations/confirmations/<token_str>')
 
+    # password recovery
+    api.add_resource(resources.RecoverPasswordRequestResource, '/password-recovery')
+
     # users
     api.add_resource(apply_session(resources.UserListResource), '/users')
     api.add_resource(apply_session(resources.UserResource), '/users/<int:instance_id>')

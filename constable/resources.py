@@ -21,7 +21,8 @@ from .models import (
     User,
     Token,
     Application,
-    Registration
+    Registration,
+    RecoverPasswordRequest
 )
 
 from . import config
@@ -159,6 +160,32 @@ class TokenListResource(QueryEngineMixin, CreateListResource):
     model = Token
     session = db.session
 
+## reCAPTCHA helper
+
+def verify_recaptcha(recaptcha_code, ip):
+    google_request_data = {
+        'secret': config.GOOGLE_RECAPTCHA_SECRET,
+        'response': recaptcha_code,
+        'remoteip': ip
+    }
+
+    google_response = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data=google_request_data)
+
+    if google_response.status_code != 200:
+        current_app.logger.error('Non-200 response from Google reCAPTCHA')
+        abort(500)
+
+    google_response_data = google_response.json()
+
+    if google_response_data['success'] != True:
+        abort(400, errors=['Bad Request'])
+
+    ## TODO: make sure google_response_data['challenge_ts'] is not to far off
+    ## TODO: verify google_response_data['hostname']
+    ## TODO: inspect google_response_data['error-codes'] ?
+
 ## Registration
 
 class RegistrationUserSchema(Schema):
@@ -179,12 +206,12 @@ class RegistrationResource(Resource):
 
     def post(self):
         raw_body = request.json
-        instance_load = registration_schema.load(raw_body)
+        input_load = registration_schema.load(raw_body)
 
-        if instance_load.errors:
-            abort(400, errors=instance_load.errors)
+        if input_load.errors:
+            abort(400, errors=input_load.errors)
 
-        registration = instance_load.data
+        registration = input_load.data
 
         ## TODO: check password strength
         ## TODO: check for temp email
@@ -192,31 +219,7 @@ class RegistrationResource(Resource):
 
         ip = get_ip(config.NUMBER_OF_PROXIES)
 
-        google_request_data = {
-            'secret': config.GOOGLE_RECAPTCHA_SECRET,
-            'response': registration['recaptcha'],
-            'remoteip': ip
-        }
-
-        google_response = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            data=google_request_data)
-
-        print(google_response)
-        print(google_response.text)
-
-        if google_response.status_code != 200:
-            current_app.logger.error('Non-200 response from Google reCAPTCHA')
-            abort(500)
-
-        google_response_data = google_response.json()
-
-        if google_response_data['success'] != True:
-            abort(400, errors=['Bad Request'])
-
-        ## TODO: make sure google_response_data['challenge_ts'] is not to far off
-        ## TODO: verify google_response_data['hostname']
-        ## TODO: inspect google_response_data['error-codes'] ?
+        verify_recaptcha(registration['recaptcha'], ip)
 
         registration_instance = Registration(
             ip=ip,
@@ -260,6 +263,43 @@ class RegistrationConfirmationResource(Resource):
         registration.hashed_password = None
         registration.status = 'success'
 
+        ## TODO: revoke temp token
+
         self.session.commit()
 
         return None, 303, {'Location': '{}/login'.format(config.BASE_URL)}
+
+## Change Password
+
+class RecoverPasswordRequestSchema(Schema):
+    email = fields.String(required=True, validate=[validate.Length(max=255)])
+    recaptcha = fields.String(required=True, validate=[validate.Length(max=512)])
+
+recovery_password_request_schema = RecoverPasswordRequestSchema()
+
+class RecoverPasswordRequestResource(Resource):
+    session = db.session
+
+    def post(self):
+        raw_body = request.json
+        input_load = recovery_password_request_schema.load(raw_body)
+
+        if input_load.errors:
+            abort(400, errors=input_load.errors)
+
+        recover_password_input = input_load.data
+
+        ip = get_ip(config.NUMBER_OF_PROXIES)
+
+        verify_recaptcha(recover_password_input['recaptcha'], ip)
+
+        recover_password_request = RecoverPasswordRequest(
+            email=recover_password_input['email'],
+            ip=ip,
+            user_agent=request.user_agent.string,
+            status='new')
+
+        self.session.add(recover_password_request)
+        self.session.commit()
+
+        return None, 204

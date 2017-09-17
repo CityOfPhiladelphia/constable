@@ -10,6 +10,7 @@ A rather nice authentication and authorization service
 		- TBD: SAML
 		- TBD: Google
 		- TBD: Facebook
+		- TBD: OpenID Connect
 		- TBD: LDAP
 	- Local Login Provider
 		- [Login](https://github.com/CityOfPhiladelphia/constable/issues/7)
@@ -23,6 +24,7 @@ A rather nice authentication and authorization service
 		- Shared master session
 		- TODO: [Shared Application Session](https://github.com/CityOfPhiladelphia/constable/issues/1)
 		- TODO: [SAML](https://github.com/CityOfPhiladelphia/constable/issues/2)
+		- TODO: OpenID Connect
 	- TODO: OAuth
 		- For mobile, native, 3rd party API access, and often used for SSO
 	- Two Factor Authentication

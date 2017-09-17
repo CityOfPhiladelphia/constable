@@ -33,13 +33,13 @@ export default {
     submit ({ commit }, passwordRecovery) {
       commit(types.SUBMIT_PASSWORD_RECOVERY)
       api
-        .post('/password-recoveries', passwordRecovery)
+        .post('/password-recovery', passwordRecovery)
         .then((res) => {
           if (res.status === 204) {
             commit(types.RECEIVE_PASSWORD_RECOVERY_SUCCESS)
           } else {
             var error = null
-            if (res.data.errors)
+            if (res.data && res.data.errors)
               error = res.data.errors
             commit(types.RECEIVE_PASSWORD_RECOVERY_FAILURE, error)
           }
