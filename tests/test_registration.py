@@ -1,4 +1,5 @@
 from datetime import datetime
+import copy
 
 from restful_ben.test_utils import json_call, login, dict_contains, iso_regex
 import requests_mock
@@ -11,7 +12,7 @@ registration_fixture = {
     'user': {
         'first_name': 'Alicia',
         'last_name': 'Florrick',
-        'email': 'alicia.florrick@example.com',
+        'email': 'alicia.florrick@exampleemail.com',
         'password': 'correct horse battery staple',
         'mobile_phone': '484-555-5555'
     },
@@ -64,6 +65,54 @@ def test_registration_google_500(app):
 
         assert response.status_code == 500
 
+def test_weak_password(app):
+    with requests_mock.Mocker() as m:
+        m.post('https://www.google.com/recaptcha/api/siteverify', json={
+            'success': True
+        })
+
+        test_client = app.test_client()
+
+        registration_with_weak_password = copy.deepcopy(registration_fixture)
+        registration_with_weak_password['user']['password'] = 'foobarpie'
+
+        response = json_call(test_client.post, '/registrations', registration_with_weak_password)
+
+        assert response.status_code == 400
+        assert response.json['errors'][0] == 'Password is too weak'
+
+def test_invalid_email(app):
+    with requests_mock.Mocker() as m:
+        m.post('https://www.google.com/recaptcha/api/siteverify', json={
+            'success': True
+        })
+
+        test_client = app.test_client()
+
+        registration_with_weak_password = copy.deepcopy(registration_fixture)
+        registration_with_weak_password['user']['email'] = 'fido@hg'
+
+        response = json_call(test_client.post, '/registrations', registration_with_weak_password)
+
+        assert response.status_code == 400
+        assert response.json['errors'][0] == 'Email is invalid'
+
+def test_disposable_email(app):
+    with requests_mock.Mocker() as m:
+        m.post('https://www.google.com/recaptcha/api/siteverify', json={
+            'success': True
+        })
+
+        test_client = app.test_client()
+
+        registration_with_weak_password = copy.deepcopy(registration_fixture)
+        registration_with_weak_password['user']['email'] = 'me@mailinator.com'
+
+        response = json_call(test_client.post, '/registrations', registration_with_weak_password)
+
+        assert response.status_code == 400
+        assert response.json['errors'][0] == 'Cannot use disposable email address'
+
 def test_complete_registration(app):
     test_client = app.test_client()
 
@@ -87,6 +136,8 @@ def test_complete_registration(app):
         assert registration_instance.status == 'verification_email_sent'
         assert registration_instance.verification_token_id == str(token_instance.id)
 
+        ## TODO: check that send_notification was called
+
         response = test_client.get('/registrations/confirmations/' + token_instance.token)
 
         assert response.status_code == 303
@@ -108,3 +159,6 @@ def test_complete_registration(app):
         assert user_instance.last_name == input_user['last_name']
         assert user_instance.mobile_phone == input_user['mobile_phone']
         assert user_instance.verify_password(input_user['password'])
+
+        db.session.refresh(token_instance)
+        assert isinstance(token_instance.revoked_at, datetime)

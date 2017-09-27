@@ -43,6 +43,10 @@ with app.app_context():
 
     # password recovery
     api.add_resource(resources.RecoverPasswordRequestResource, '/password-recovery')
+    api.add_resource(resources.RecoverPasswordResource, '/password-recovery/<token_str>')
+
+    # password change
+    api.add_resource(resources.PasswordChangeResource, '/password-change')
 
     # users
     api.add_resource(apply_session(resources.UserListResource), '/users')

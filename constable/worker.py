@@ -96,7 +96,39 @@ def process_registrations(now, session, registrations):
 def process_password_recovery_requests(now, session, password_recovery_requests):
     for password_recovery_request in password_recovery_requests:
         try:
-            pass
+            user = session.query(User).filter(User.email == password_recovery_request.email).one_or_none()
+            if user:
+                ## TODO: send email "Did you forget you account existed? ... link to reset password"
+                ## TODO: if a recovery with the same email has been used in the last 12 or 24 hours,
+                ##       do not send another email. Prevents someone's email from being remote pounded
+                token = Token(
+                    type='token',
+                    scopes=['password_recovery'],
+                    expires_at=datetime.utcnow() + timedelta(days=5),
+                    user_id=user.id,
+                    ip=password_recovery_request.ip,
+                    user_agent=password_recovery_request.user_agent)
+                session.add(token)
+                session.commit()
+
+                token_str = token.token
+
+                send_notification('password_recovery', {
+                    'email': user.email,
+                    'data': {
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'token': token_str
+                    }
+                })
+
+                password_recovery_request.status = 'verification_email_sent'
+                password_recovery_request.verification_token_id = str(token.id)
+                password_recovery_request.user_id = user.id
+                session.commit()
+            else:
+                password_recovery_request.status = 'email_does_not_exist'
+                session.commit()
         except Exception as e:
             print(e)
             ## TODO: use logger

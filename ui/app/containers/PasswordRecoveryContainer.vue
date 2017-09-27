@@ -4,7 +4,7 @@
       <h1 class="contrast">Password Recovery</h1>
       <phila-alert :success="success">Please check your email to complete recovery.</phila-alert>
       <phila-alert :error="error">{{ error }}</phila-alert>
-      <password-recovery-form :onSubmit="submit"></password-recovery-form>
+      <password-recovery-form v-if="!success" :onSubmit="submit"></password-recovery-form>
     </div>
   </div>
 </template>

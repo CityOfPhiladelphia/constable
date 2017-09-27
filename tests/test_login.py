@@ -7,7 +7,7 @@ from shared_fixtures import app
 def test_login(app):
     test_client = app.test_client()
 
-    response = json_call(test_client.post, '/session', username='amadonna', password='foo')
+    response = json_call(test_client.post, '/session', email='amadonna@exampleemail.com', password='foo')
 
     assert response.status_code == 201
     assert 'csrf_token' in response.json

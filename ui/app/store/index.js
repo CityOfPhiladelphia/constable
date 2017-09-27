@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import login from './modules/login'
 import registration from './modules/registration'
 import passwordRecovery from './modules/passwordRecovery'
+import user from './modules/user'
 
 Vue.use(Vuex)
 
@@ -13,7 +14,8 @@ const store = new Vuex.Store({
   modules: {
     login,
     registration,
-    passwordRecovery
+    passwordRecovery,
+    user
   },
   strict: debug
 })
